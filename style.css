@@ -67,7 +67,7 @@ h3 {
 }
 
 .computer-choices,
-.human-choices {
+.user-choices {
   display: flex;
   flex-direction: column;
 }
@@ -84,14 +84,10 @@ h3 {
   padding: .5em;
   cursor: pointer;
   font-weight: bold;
-  /* position: absolute;
-  bottom: 14em; */
 }
 
 .selections,
 .scores {
-  /* position: absolute; */
-  /* padding-left: 40px; */
   max-width: 400px;
   display: flex;
   flex-direction: column;
@@ -116,11 +112,16 @@ h3 {
   transform: scaleX(-1);
 }
 
-.human-choices svg {
+.user-choices button,
+.computer-choices button {
+  all: unset;
+}
+
+.user-choices svg {
   cursor: pointer;
 }
 
-.human-choices svg:hover {
+.user-choices svg:hover {
   fill: rgb(184, 201, 208);
 }
 

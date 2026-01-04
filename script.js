@@ -1,26 +1,28 @@
 let computerScore = 0;
-let humanScore = 0;
+let userScore = 0;
 
 const roundResult = document.querySelector(".round-result");
 const playerScore = document.querySelector(".player-score");
 const comScore = document.querySelector(".computer-score");
+const computerRock = document.getElementById("rock");
+const computerPaper = document.getElementById("paper");
+const computerScissors = document.getElementById("scissors");
+const instructions = document.querySelector(".instructions");
 const finalResult = document.querySelector(".final-result");
 
-let humanChoices = document.querySelector(".human-choices");
-humanChoices.addEventListener("click", playRound);
-
+let userChoices = document.querySelector(".user-choices");
 let svgs = document.querySelectorAll("svg");
+let resetRestartButton = document.querySelector(".restart-reset");
 
-let resetRestartButton = document.querySelector('.restart-reset');
-resetRestartButton.addEventListener('click', () => {
-  computerScore = 0;
-  humanScore = 0;
-  roundResult.textContent = '';
-  comScore.textContent = computerScore;
-  playerScore.textContent = humanScore;
-  finalResult.textContent = '';
-  svgs.forEach(svg => svg.classList.add("black"));
-});
+function getUserChoice(e) {
+  if (e.target.closest(".rock")) {
+    return "rock";
+  } else if (e.target.closest(".paper")) {
+    return "paper";
+  } else if (e.target.closest(".scissors")) {
+    return "scissors";
+  }
+}
 
 function getComputerChoice() {
   if (Math.random() < 0.3) {
@@ -32,87 +34,112 @@ function getComputerChoice() {
   }
 }
 
-function playRound(e) {
-  
-  function colorHumanChoice(e, color) {
-    const svg = e.target.closest("svg");
-    svg.classList.remove("black");
-    svg.classList.add(color);
-  }
+function colorUserChoice(e, color) {
+  const svg = e.target.closest("svg");
+  svg.classList.remove("black");
+  svg.classList.add(color);
+}
 
-  function colorComputerChoice(humanChoice, color) {
-    switch (humanChoice) {
-      case "rock":
-        computerPaper.classList.remove("black");
-        computerPaper.classList.add(color);
-        break;
-      case "paper":
-        computerScissors.classList.remove("black");
-        computerScissors.classList.add(color);
-        break;
-      case "scissors":
-        computerRock.classList.remove("black");
-        computerRock.classList.add(color);
-        break;
-    }
+function colorComputerChoice(computerChoice, color) {
+  switch (computerChoice) {
+    case "rock":
+      computerRock.classList.remove("black");
+      computerRock.classList.add(color);
+      break;
+    case "paper":
+      computerPaper.classList.remove("black");
+      computerPaper.classList.add(color);
+      break;
+    case "scissors":
+      computerScissors.classList.remove("black");
+      computerScissors.classList.add(color);
+      break;
   }
+}
 
+function resetSvgsColorToBlack() {
   svgs.forEach((svg) => {
     svg.classList.remove("red");
     svg.classList.remove("green");
     svg.classList.remove("blue");
     svg.classList.add("black");
   });
+}
 
-  let humanChoice = "";
-  if (e.target.closest(".rock")) {
-    humanChoice = "rock";
-  } else if (e.target.closest(".paper")) {
-    humanChoice = "paper";
-  } else if (e.target.closest(".scissors")) {
-    humanChoice = "scissors";
+function computerWins(e, computerChoice, userChoice) {
+  computerScore++;
+  roundResult.textContent = `“You lose! ${computerChoice} beats ${userChoice}”`;
+  colorUserChoice(e, "red");
+  colorComputerChoice(computerChoice, "green");
+}
+
+function userWins(e, userChoice, computerChoice) {
+  userScore++;
+  roundResult.textContent = `“You win! ${userChoice} beats ${computerChoice}”`;
+  colorUserChoice(e, "green");
+  colorComputerChoice(computerChoice, "red");
+}
+
+function draw(e, userChoice, computerChoice) {
+  roundResult.textContent = `“It's a draw! Both chose ${computerChoice}”`;
+  colorUserChoice(e, "blue");
+  colorComputerChoice(userChoice, "blue");
+}
+
+function endGame() {
+  if (userScore === 5 || computerScore === 5) {
+    userChoices.removeEventListener("click", playRound);
+    svgs.forEach((svg) => (svg.style.cursor = "default"));
   }
-
-  let computerChoice = getComputerChoice();
-
-  const computerRock = document.getElementById("rock");
-  const computerPaper = document.getElementById("paper");
-  const computerScissors = document.getElementById("scissors");
-  const instructions = document.querySelector(".instructions");
-
-  if (
-    (computerChoice === "paper" && humanChoice === "rock") ||
-    (computerChoice === "rock" && humanChoice === "scissors") ||
-    (computerChoice === "scissors" && humanChoice === "paper")
-  ) {
-    computerScore++;
-    roundResult.textContent = `“You lose! ${computerChoice} beats ${humanChoice}”`;
-    colorHumanChoice(e, "red");
-    colorComputerChoice(humanChoice, "green");
-  } else if (
-    (computerChoice === "rock" && humanChoice === "paper") ||
-    (computerChoice === "scissors" && humanChoice === "rock") ||
-    (computerChoice === "paper" && humanChoice === "scissors")
-  ) {
-    humanScore++;
-    roundResult.textContent = `“You win! ${humanChoice} beats ${computerChoice}”`;
-    colorHumanChoice(e, "green");
-    colorComputerChoice(humanChoice, "red");
-  } else {
-    roundResult.textContent = `“It's a draw! Both chose ${computerChoice}”`;
-    colorHumanChoice(e, "blue");
-    computerPaper.classList.remove("black");
-    computerPaper.classList.add("blue");
-  }
-
-  comScore.textContent = computerScore;
-  playerScore.textContent = humanScore;
 
   if (computerScore === 5) {
     finalResult.textContent = "Sorry, you lost the game! :'(";
     instructions.classList.add("d-none");
-  } else if (humanScore === 5) {
+  } else if (userScore === 5) {
     finalResult.textContent = "Congrats! You won :D";
     instructions.classList.add("d-none");
   }
 }
+
+function playRound(e) {
+  resetSvgsColorToBlack();
+
+  const userChoice = getUserChoice(e);
+  console.log(userChoice);
+  const computerChoice = getComputerChoice();
+  console.log(computerChoice);
+
+  if (
+    (computerChoice === "paper" && userChoice === "rock") ||
+    (computerChoice === "rock" && userChoice === "scissors") ||
+    (computerChoice === "scissors" && userChoice === "paper")
+  ) {
+    computerWins(e, computerChoice, userChoice);
+  } else if (
+    (computerChoice === "rock" && userChoice === "paper") ||
+    (computerChoice === "scissors" && userChoice === "rock") ||
+    (computerChoice === "paper" && userChoice === "scissors")
+  ) {
+    userWins(e, userChoice, computerChoice);
+  } else {
+    draw(e, userChoice, computerChoice);
+  }
+
+  comScore.textContent = computerScore;
+  playerScore.textContent = userScore;
+
+  endGame();
+}
+
+resetRestartButton.addEventListener("click", () => {
+  computerScore = 0;
+  userScore = 0;
+  comScore.textContent = computerScore;
+  playerScore.textContent = userScore;
+  roundResult.textContent = "";
+  finalResult.textContent = "";
+  svgs.forEach((svg) => svg.classList.add("black"));
+  userChoices.addEventListener("click", playRound);
+});
+
+userChoices.addEventListener("click", playRound);
