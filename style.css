@@ -32,7 +32,9 @@ p {
 }
 
 .instructions {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-top: 1em;
   text-align: center;
 }
@@ -67,7 +69,7 @@ h3 {
 }
 
 .computer-choices,
-.user-choices {
+.human-choices {
   display: flex;
   flex-direction: column;
 }
@@ -81,7 +83,7 @@ h3 {
 }
 
 .restart-reset {
-  padding: .5em;
+  padding: 0.5em;
   cursor: pointer;
   font-weight: bold;
 }
@@ -107,21 +109,37 @@ h3 {
   margin-top: 2em;
 }
 
+.round-number,
+.final-result-text,
+.final-result {
+  font-size: 24px;
+}
+
+.human-choices {
+  pointer-events: none;
+}
+
+.rock,
+.paper,
+.scissors {
+  pointer-events: auto;
+}
+
 .computer-choices svg {
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
 }
 
-.user-choices button,
+.human-choices button,
 .computer-choices button {
   all: unset;
 }
 
-.user-choices svg {
+.human-choices svg {
   cursor: pointer;
 }
 
-.user-choices svg:hover {
+.human-choices .hover:hover {
   fill: rgb(184, 201, 208);
 }
 

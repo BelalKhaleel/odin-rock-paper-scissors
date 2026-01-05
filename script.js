@@ -1,7 +1,8 @@
 let computerScore = 0;
-let userScore = 0;
-let roundWinner = "";
+let humanScore = 0;
+let round = 0;
 
+const roundNumber = document.querySelector(".round-number");
 const roundResult = document.querySelector(".round-result");
 const playerScore = document.querySelector(".player-score");
 const comScore = document.querySelector(".computer-score");
@@ -9,13 +10,14 @@ const computerRock = document.getElementById("rock");
 const computerPaper = document.getElementById("paper");
 const computerScissors = document.getElementById("scissors");
 const instructions = document.querySelector(".instructions");
+const finalResultText = document.querySelector(".final-result-text");
 const finalResult = document.querySelector(".final-result");
 
-let userChoices = document.querySelector(".user-choices");
+let humanChoices = document.querySelector(".human-choices");
 let svgs = document.querySelectorAll("svg");
 let resetRestartButton = document.querySelector(".restart-reset");
 
-function getUserChoice(e) {
+function getHumanChoice(e) {
   if (e.target.closest(".rock")) {
     return "rock";
   } else if (e.target.closest(".paper")) {
@@ -26,16 +28,17 @@ function getUserChoice(e) {
 }
 
 function getComputerChoice() {
-  if (Math.random() < 0.3) {
+  const result = Math.random();
+  if (result < 0.3) {
     return "rock";
-  } else if (Math.random() < 0.6) {
+  } else if (result < 0.6) {
     return "paper";
   } else {
     return "scissors";
   }
 }
 
-function colorUserChoice(e, color) {
+function colorHumanChoice(e, color) {
   const svg = e.target.closest("svg");
   svg.classList.remove("black");
   svg.classList.add(color);
@@ -58,101 +61,115 @@ function colorComputerChoice(computerChoice, color) {
   }
 }
 
-function resetSvgsColorToBlack() {
+function resetSvgs() {
   svgs.forEach((svg) => {
     svg.classList.remove("red");
     svg.classList.remove("green");
     svg.classList.remove("blue");
     svg.classList.add("black");
+    svg.classList.add("hover");
+    svg.style.cursor = "pointer";
   });
 }
 
-function computerWins(e, computerChoice, userChoice) {
+function computerWins(e, computerChoice, humanChoice) {
   computerScore++;
-  roundResult.textContent = `“You lose! ${computerChoice} beats ${userChoice}”`;
-  colorUserChoice(e, "red");
+  roundResult.textContent = `“You lose! ${computerChoice} beats ${humanChoice}”`;
+  colorHumanChoice(e, "red");
   colorComputerChoice(computerChoice, "green");
 }
 
-function userWins(e, userChoice, computerChoice) {
-  userScore++;
-  roundResult.textContent = `“You win! ${userChoice} beats ${computerChoice}”`;
-  colorUserChoice(e, "green");
+function humanWins(e, humanChoice, computerChoice) {
+  humanScore++;
+  roundResult.textContent = `“You win! ${humanChoice} beats ${computerChoice}”`;
+  colorHumanChoice(e, "green");
   colorComputerChoice(computerChoice, "red");
 }
 
-function draw(e, userChoice, computerChoice) {
+function draw(e, humanChoice, computerChoice) {
   roundResult.textContent = `“It's a draw! Both chose ${computerChoice}”`;
-  colorUserChoice(e, "blue");
-  colorComputerChoice(userChoice, "blue");
+  colorHumanChoice(e, "blue");
+  colorComputerChoice(humanChoice, "blue");
 }
 
 function endGame() {
-  if (userScore === 5 || computerScore === 5) {
-    userChoices.removeEventListener("click", playRound);
-    svgs.forEach((svg) => (svg.style.cursor = "default"));
-  }
+  humanChoices.removeEventListener("click", playGame);
+  instructions.classList.add("d-none");
+  finalResultText.classList.remove("d-none");
+  svgs.forEach((svg) => {
+    svg.classList.remove("hover");
+    svg.style.cursor = "default";
+  });
 
-  if (computerScore === 5) {
+  if (computerScore > humanScore) {
     finalResult.textContent = "Sorry, you lost the game! :'(";
-    instructions.classList.add("d-none");
-  } else if (userScore === 5) {
+  } else if (humanScore > computerScore) {
     finalResult.textContent = "Congrats! You won :D";
-    instructions.classList.add("d-none");
+  } else {
+    finalResult.textContent = "It's a draw :)";
   }
 }
 
-function checkRoundWinner(computerChoice, userChoice) {
+function checkRoundWinner(computerChoice, humanChoice) {
   if (
-    (computerChoice === "paper" && userChoice === "rock") ||
-    (computerChoice === "rock" && userChoice === "scissors") ||
-    (computerChoice === "scissors" && userChoice === "paper")
+    (computerChoice === "paper" && humanChoice === "rock") ||
+    (computerChoice === "rock" && humanChoice === "scissors") ||
+    (computerChoice === "scissors" && humanChoice === "paper")
   ) {
-    roundWinner = "computer";
+    return "computer";
   } else if (
-    (computerChoice === "rock" && userChoice === "paper") ||
-    (computerChoice === "scissors" && userChoice === "rock") ||
-    (computerChoice === "paper" && userChoice === "scissors")
+    (computerChoice === "rock" && humanChoice === "paper") ||
+    (computerChoice === "scissors" && humanChoice === "rock") ||
+    (computerChoice === "paper" && humanChoice === "scissors")
   ) {
-    roundWinner = "user";
+    return "human";
   }
+  return "";
 }
 
 function playRound(e) {
-  resetSvgsColorToBlack();
+  round++;
+  resetSvgs();
 
-  const userChoice = getUserChoice(e);
-  console.log(userChoice);
+  const humanChoice = getHumanChoice(e);
   const computerChoice = getComputerChoice();
-  console.log(computerChoice);
 
-  checkRoundWinner(computerChoice, userChoice);
+  const roundWinner = checkRoundWinner(computerChoice, humanChoice);
 
   if (roundWinner === "computer") {
-    computerWins(e, computerChoice, userChoice);
-  } else if (roundWinner === "user") {
-    userWins(e, userChoice, computerChoice);
+    computerWins(e, computerChoice, humanChoice);
+  } else if (roundWinner === "human") {
+    humanWins(e, humanChoice, computerChoice);
   } else {
-    draw(e, userChoice, computerChoice);
+    draw(e, humanChoice, computerChoice);
   }
 
+  roundNumber.textContent = `Round: ${round}`;
   comScore.textContent = computerScore;
-  playerScore.textContent = userScore;
-
-  endGame();
-
-  roundWinner = "";
+  playerScore.textContent = humanScore;
 }
 
-resetRestartButton.addEventListener("click", () => {
+function playGame(e) {
+  playRound(e);
+
+  if (round > 4) {
+    endGame();
+  }
+}
+
+function resetGame() {
   computerScore = 0;
-  userScore = 0;
+  humanScore = 0;
+  round = 0;
   comScore.textContent = computerScore;
-  playerScore.textContent = userScore;
+  playerScore.textContent = humanScore;
+  roundNumber.textContent = "";
   roundResult.textContent = "";
   finalResult.textContent = "";
-  svgs.forEach((svg) => svg.classList.add("black"));
-  userChoices.addEventListener("click", playRound);
-});
+  finalResultText.classList.add("d-none");
+  resetSvgs();
+  humanChoices.addEventListener("click", playGame);
+}
 
-userChoices.addEventListener("click", playRound);
+resetRestartButton.addEventListener("click", resetGame);
+humanChoices.addEventListener("click", playGame);
