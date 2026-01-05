@@ -1,5 +1,6 @@
 let computerScore = 0;
 let userScore = 0;
+let roundWinner = "";
 
 const roundResult = document.querySelector(".round-result");
 const playerScore = document.querySelector(".player-score");
@@ -101,6 +102,22 @@ function endGame() {
   }
 }
 
+function checkRoundWinner(computerChoice, userChoice) {
+  if (
+    (computerChoice === "paper" && userChoice === "rock") ||
+    (computerChoice === "rock" && userChoice === "scissors") ||
+    (computerChoice === "scissors" && userChoice === "paper")
+  ) {
+    roundWinner = "computer";
+  } else if (
+    (computerChoice === "rock" && userChoice === "paper") ||
+    (computerChoice === "scissors" && userChoice === "rock") ||
+    (computerChoice === "paper" && userChoice === "scissors")
+  ) {
+    roundWinner = "user";
+  }
+}
+
 function playRound(e) {
   resetSvgsColorToBlack();
 
@@ -109,17 +126,11 @@ function playRound(e) {
   const computerChoice = getComputerChoice();
   console.log(computerChoice);
 
-  if (
-    (computerChoice === "paper" && userChoice === "rock") ||
-    (computerChoice === "rock" && userChoice === "scissors") ||
-    (computerChoice === "scissors" && userChoice === "paper")
-  ) {
+  checkRoundWinner(computerChoice, userChoice);
+
+  if (roundWinner === "computer") {
     computerWins(e, computerChoice, userChoice);
-  } else if (
-    (computerChoice === "rock" && userChoice === "paper") ||
-    (computerChoice === "scissors" && userChoice === "rock") ||
-    (computerChoice === "paper" && userChoice === "scissors")
-  ) {
+  } else if (roundWinner === "user") {
     userWins(e, userChoice, computerChoice);
   } else {
     draw(e, userChoice, computerChoice);
@@ -129,6 +140,8 @@ function playRound(e) {
   playerScore.textContent = userScore;
 
   endGame();
+
+  roundWinner = "";
 }
 
 resetRestartButton.addEventListener("click", () => {
