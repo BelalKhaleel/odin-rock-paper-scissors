@@ -112,7 +112,8 @@ h3 {
   font-size: 24px;
 }
 
-.human-choices {
+.human-choices,
+svg path {
   pointer-events: none;
 }
 
@@ -129,6 +130,7 @@ h3 {
 
 .human-choices button,
 .computer-choices button {
+  width: fit-content;
   all: unset;
 }
 
