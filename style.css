@@ -32,9 +32,7 @@ p {
 }
 
 .instructions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: block;
   margin-top: 1em;
   text-align: center;
 }
@@ -109,7 +107,6 @@ h3 {
   margin-top: 2em;
 }
 
-.round-number,
 .final-result-text,
 .final-result {
   font-size: 24px;

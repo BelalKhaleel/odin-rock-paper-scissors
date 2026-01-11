@@ -1,8 +1,6 @@
 let computerScore = 0;
 let humanScore = 0;
-let round = 0;
 
-const roundNumber = document.querySelector(".round-number");
 const roundResult = document.querySelector(".round-result");
 const playerScore = document.querySelector(".player-score");
 const comScore = document.querySelector(".computer-score");
@@ -86,15 +84,14 @@ function humanWins(e, humanChoice, computerChoice) {
   colorComputerChoice(computerChoice, "red");
 }
 
-function draw(e, humanChoice, computerChoice) {
+function draw(e, computerChoice) {
   roundResult.textContent = `“It's a draw! Both chose ${computerChoice}”`;
   colorHumanChoice(e, "blue");
-  colorComputerChoice(humanChoice, "blue");
+  colorComputerChoice(computerChoice, "blue");
 }
 
 function endGame() {
   humanChoices.removeEventListener("click", playGame);
-  instructions.classList.add("d-none");
   finalResultText.classList.remove("d-none");
   svgs.forEach((svg) => {
     svg.classList.remove("hover");
@@ -103,10 +100,8 @@ function endGame() {
 
   if (computerScore > humanScore) {
     finalResult.textContent = "Sorry, you lost the game! :'(";
-  } else if (humanScore > computerScore) {
-    finalResult.textContent = "Congrats! You won :D";
   } else {
-    finalResult.textContent = "It's a draw :)";
+    finalResult.textContent = "Congrats! You won :D";
   }
 }
 
@@ -128,7 +123,6 @@ function checkRoundWinner(computerChoice, humanChoice) {
 }
 
 function playRound(e) {
-  round++;
   resetSvgs();
 
   const humanChoice = getHumanChoice(e);
@@ -144,7 +138,6 @@ function playRound(e) {
     draw(e, humanChoice, computerChoice);
   }
 
-  roundNumber.textContent = `Round: ${round}`;
   comScore.textContent = computerScore;
   playerScore.textContent = humanScore;
 }
@@ -152,7 +145,7 @@ function playRound(e) {
 function playGame(e) {
   playRound(e);
 
-  if (round > 4) {
+  if (humanScore === 5 || computerScore === 5) {
     endGame();
   }
 }
@@ -160,10 +153,8 @@ function playGame(e) {
 function resetGame() {
   computerScore = 0;
   humanScore = 0;
-  round = 0;
   comScore.textContent = computerScore;
   playerScore.textContent = humanScore;
-  roundNumber.textContent = "";
   roundResult.textContent = "";
   finalResult.textContent = "";
   finalResultText.classList.add("d-none");
