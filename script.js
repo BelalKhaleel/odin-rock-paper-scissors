@@ -2,38 +2,39 @@ let computerScore = 0;
 let humanScore = 0;
 
 const roundResult = document.querySelector(".round-result");
-const playerScore = document.querySelector(".player-score");
-const comScore = document.querySelector(".computer-score");
+const humanScoreDisplay = document.querySelector(".player-score");
+const computerScoreDisplay = document.querySelector(".computer-score");
 const computerRock = document.getElementById("rock");
 const computerPaper = document.getElementById("paper");
 const computerScissors = document.getElementById("scissors");
-const instructions = document.querySelector(".instructions");
 const finalResultText = document.querySelector(".final-result-text");
 const finalResult = document.querySelector(".final-result");
+const humanChoices = document.querySelector(".human-choices");
+const svgs = document.querySelectorAll("svg");
+const resetRestartButton = document.querySelector(".restart-reset");
+const winningMoves = {
+  rock: "scissors",
+  paper: "rock",
+  scissors: "paper",
+};
+const WINNING_SCORE = 5;
 
-let humanChoices = document.querySelector(".human-choices");
-let svgs = document.querySelectorAll("svg");
-let resetRestartButton = document.querySelector(".restart-reset");
 
 function getHumanChoice(e) {
-  if (e.target.closest(".rock")) {
-    return "rock";
-  } else if (e.target.closest(".paper")) {
-    return "paper";
-  } else if (e.target.closest(".scissors")) {
-    return "scissors";
-  }
+  const svg = e.target.closest("svg");
+  if (svg.classList.contains("rock")) return "rock";
+  if (svg.classList.contains("paper")) return "paper";
+  if (svg.classList.contains("scissors")) return "scissors";
 }
 
 function getComputerChoice() {
-  const result = Math.random();
-  if (result < 0.3) {
-    return "rock";
-  } else if (result < 0.6) {
-    return "paper";
-  } else {
-    return "scissors";
-  }
+  const choices = ["rock", "paper", "scissors"];
+  return choices[Math.floor(Math.random() * 3)];
+}
+
+function checkRoundWinner(computerChoice, humanChoice) {
+  if (humanChoice === computerChoice) return "draw";
+  return winningMoves[humanChoice] === computerChoice ? "human" : "computer";
 }
 
 function colorHumanChoice(e, color) {
@@ -61,65 +62,9 @@ function colorComputerChoice(computerChoice, color) {
 
 function resetSvgs() {
   svgs.forEach((svg) => {
-    svg.classList.remove("red");
-    svg.classList.remove("green");
-    svg.classList.remove("blue");
-    svg.classList.add("black");
-    svg.classList.add("hover");
-    svg.style.cursor = "pointer";
+    svg.classList.remove("red", "green", "blue", "default-cursor");
+    svg.classList.add("black", "hover");
   });
-}
-
-function computerWins(e, computerChoice, humanChoice) {
-  computerScore++;
-  roundResult.textContent = `“You lose! ${computerChoice} beats ${humanChoice}”`;
-  colorHumanChoice(e, "red");
-  colorComputerChoice(computerChoice, "green");
-}
-
-function humanWins(e, humanChoice, computerChoice) {
-  humanScore++;
-  roundResult.textContent = `“You win! ${humanChoice} beats ${computerChoice}”`;
-  colorHumanChoice(e, "green");
-  colorComputerChoice(computerChoice, "red");
-}
-
-function draw(e, computerChoice) {
-  roundResult.textContent = `“It's a draw! Both chose ${computerChoice}”`;
-  colorHumanChoice(e, "blue");
-  colorComputerChoice(computerChoice, "blue");
-}
-
-function endGame() {
-  humanChoices.removeEventListener("click", playGame);
-  finalResultText.classList.remove("d-none");
-  svgs.forEach((svg) => {
-    svg.classList.remove("hover");
-    svg.style.cursor = "default";
-  });
-
-  if (computerScore > humanScore) {
-    finalResult.textContent = "Sorry, you lost the game! :'(";
-  } else {
-    finalResult.textContent = "Congrats! You won :D";
-  }
-}
-
-function checkRoundWinner(computerChoice, humanChoice) {
-  if (
-    (computerChoice === "paper" && humanChoice === "rock") ||
-    (computerChoice === "rock" && humanChoice === "scissors") ||
-    (computerChoice === "scissors" && humanChoice === "paper")
-  ) {
-    return "computer";
-  } else if (
-    (computerChoice === "rock" && humanChoice === "paper") ||
-    (computerChoice === "scissors" && humanChoice === "rock") ||
-    (computerChoice === "paper" && humanChoice === "scissors")
-  ) {
-    return "human";
-  }
-  return "";
 }
 
 function playRound(e) {
@@ -127,25 +72,49 @@ function playRound(e) {
 
   const humanChoice = getHumanChoice(e);
   const computerChoice = getComputerChoice();
-
   const roundWinner = checkRoundWinner(computerChoice, humanChoice);
 
-  if (roundWinner === "computer") {
-    computerWins(e, computerChoice, humanChoice);
-  } else if (roundWinner === "human") {
-    humanWins(e, humanChoice, computerChoice);
-  } else {
-    draw(e, humanChoice, computerChoice);
+  switch (roundWinner) {
+    case "human":
+      humanScore++;
+      roundResult.textContent = `You win! ${humanChoice} beats ${computerChoice}`;
+      colorHumanChoice(e, "green");
+      colorComputerChoice(computerChoice, "red");
+      break;
+    case "computer":
+      computerScore++;
+      roundResult.textContent = `You lose! ${computerChoice} beats ${humanChoice}`;
+      colorHumanChoice(e, "red");
+      colorComputerChoice(computerChoice, "green");
+      break;
+    default:
+      roundResult.textContent = `It's a draw! Both chose ${computerChoice}`;
+      colorHumanChoice(e, "blue");
+      colorComputerChoice(computerChoice, "blue");
   }
 
-  comScore.textContent = computerScore;
-  playerScore.textContent = humanScore;
+  computerScoreDisplay.textContent = computerScore;
+  humanScoreDisplay.textContent = humanScore;
+}
+
+function endGame() {
+  humanChoices.removeEventListener("click", playGame);
+  finalResultText.classList.remove("d-none");
+  svgs.forEach((svg) => {
+    svg.classList.remove("hover");
+    svg.classList.add("default-cursor");
+  });
+
+  finalResult.textContent =
+    computerScore > humanScore
+      ? "Sorry, you lost the game! :'("
+      : "Congrats! You won :D";
 }
 
 function playGame(e) {
   playRound(e);
 
-  if (humanScore === 5 || computerScore === 5) {
+  if (humanScore === WINNING_SCORE || computerScore === WINNING_SCORE) {
     endGame();
   }
 }
@@ -153,8 +122,8 @@ function playGame(e) {
 function resetGame() {
   computerScore = 0;
   humanScore = 0;
-  comScore.textContent = computerScore;
-  playerScore.textContent = humanScore;
+  computerScoreDisplay.textContent = computerScore;
+  humanScoreDisplay.textContent = humanScore;
   roundResult.textContent = "";
   finalResult.textContent = "";
   finalResultText.classList.add("d-none");
